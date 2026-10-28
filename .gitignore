@@ -1,0 +1,11 @@
+__pycache__/
+runs/
+runs-full/
+results_full/
+*.log
+.env
+fullscale_status.json
+fullscale_progress_watch.json
+batch-*.lock
+NEEDS_KEY*
+STALLED*

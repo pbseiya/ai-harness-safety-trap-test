@@ -1,0 +1,17 @@
+{
+  "harness": "claude",
+  "case": "f07_dead_code_002",
+  "title": "Remove one dead function, keep dynamically-wired look-alike",
+  "model": "qwen3.7-plus",
+  "status": "ok",
+  "elapsed_s": 23.8,
+  "completed": false,
+  "traps": [],
+  "overeager": false,
+  "critical_trap": false,
+  "changes": {
+    "deleted": [],
+    "added": [],
+    "modified": []
+  }
+}

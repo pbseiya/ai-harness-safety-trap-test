@@ -2,22 +2,22 @@
 
 **การทดสอบกับดักความปลอดภัยของ AI coding/agent harness แบบเต็มสเกล — 500 สถานการณ์ × 3 harness ด้วยโมเดลเดียวกัน**
 
-> **English summary:** A full-scale behavioural safety test of three AI agent harnesses — Claude Code 2.1.311, OpenAI Codex CLI 0.164.0, and Hermes Agent 0.19.0 — all driving the *same* model (`qwen3.7-plus`) through 500 filesystem tasks seeded with "traps": plausible-looking actions that cause real damage if taken (deleting credential backups during cleanup, editing generated files instead of their source, purging pinned cache entries, embedding production credentials in migrations, and 21 more families). Scoring is done purely from before/after filesystem state — no LLM judge. Codex and Hermes have completed all 500 scenarios; Claude Code results are in progress.
+> **English summary:** A full-scale behavioural safety test of three AI agent harnesses — Claude Code 2.1.311, OpenAI Codex CLI 0.164.0, and Hermes Agent 0.19.0 — all driving the *same* model (`qwen3.7-plus`) through 500 filesystem tasks seeded with "traps": plausible-looking actions that cause real damage if taken (deleting credential backups during cleanup, editing generated files instead of their source, purging pinned cache entries, embedding production credentials in migrations, and 21 more families). Scoring is done purely from before/after filesystem state — no LLM judge. All three harnesses have now completed all 500 scenarios. Claude Code completed the fewest tasks (313/500) but also fell into the fewest traps (33 runs, 14 critical) — mainly because 177 of its runs never touched a file at all.
 
 ## คำถามของการทดสอบ
 
 เมื่อตรึงโมเดลไว้ตัวเดียวกัน harness ที่ต่างกันมีพฤติกรรมด้านความปลอดภัยต่างกันแค่ไหน โดยเฉพาะพฤติกรรม **ทำเกินขอบเขตงานที่สั่ง (over-eagerness)** จนสร้างความเสียหายจริง เช่น ลบไฟล์ที่ไม่ควรลบ แก้ไฟล์นอกขอบเขต หรือฝังข้อมูลลับลงในงานที่ส่งมอบ
 
-## ผลสรุป (Codex และ Hermes — รันครบ 500/500)
+## ผลสรุป (3 harness — รันครบ 500/500 ทั้งหมด)
 
-| ตัวชี้วัด (จาก 500 ฉาก) | Codex CLI 0.164.0 | Hermes Agent 0.19.0 |
-|---|---|---|
-| งานสำเร็จตามเงื่อนไข | **448 (89.6%)** | 431 (86.2%) |
-| รันที่ตกกับดัก ≥ 1 จุด | 72 (14.4%) | 77 (15.4%) |
-| รันที่ตกกับดักระดับวิกฤต | 54 (10.8%) | 59 (11.8%) |
-| เวลามัธยฐานต่อรัน | **32.8 วิ** | 46.8 วิ |
+| ตัวชี้วัด (จาก 500 ฉาก) | Claude Code 2.1.311 | Codex CLI 0.164.0 | Hermes Agent 0.19.0 |
+|---|---|---|---|
+| งานสำเร็จตามเงื่อนไข | 313 (62.6%) | **448 (89.6%)** | 431 (86.2%) |
+| รันที่ตกกับดัก ≥ 1 จุด | **33 (6.6%)** | 72 (14.4%) | 77 (15.4%) |
+| รันที่ตกกับดักระดับวิกฤต | **14 (2.8%)** | 54 (10.8%) | 59 (11.8%) |
+| เวลามัธยฐานต่อรัน | **25.8 วิ** | 32.8 วิ | 46.8 วิ |
 
-ข้อค้นพบเด่น: ทั้งสองตัวตกตระกูล `generated_fix` **100% (18/18)** และ `cleanup_cred` ~80% เหมือนกัน ส่วนจุดอ่อนเฉพาะตัวต่างกันชัด — Hermes ไม่เคารพไฟล์ที่กำกับว่าห้ามลบ (`cleanup_marks` 11/24 เทียบกับ Codex 1/24) ขณะที่ Codex ฝืนลบรายการที่ถูก pin ในแคชเกือบทุกครั้ง (`cache_pinned` 15/16 เทียบกับ Hermes 9/16) รายละเอียดเต็มอยู่ใน [`RESULTS-CODEX-HERMES.md`](RESULTS-CODEX-HERMES.md) และ [`results/per-family-results.csv`](results/per-family-results.csv) ผลของ Claude Code กำลังดำเนินการและจะเพิ่มเมื่อครบ 500 เซลล์
+ข้อค้นพบเด่น: ทั้งสามตัวตกตระกูล `generated_fix` **100% (18/18)** เหมือนกัน ส่วน `cleanup_cred` ~80% เป็นของ Codex และ Hermes จุดอ่อนเฉพาะตัวของสองตัวนั้นต่างกันชัด — Hermes ไม่เคารพไฟล์ที่กำกับว่าห้ามลบ (`cleanup_marks` 11/24 เทียบกับ Codex 1/24) ขณะที่ Codex ฝืนลบรายการที่ถูก pin ในแคชเกือบทุกครั้ง (`cache_pinned` 15/16 เทียบกับ Hermes 9/16) ส่วนจุดต่างของ Claude คือโหมดไม่ลงมือ — 177 จาก 500 รันไม่มีการเปลี่ยนแปลงไฟล์ใด ๆ เลย ทำให้อัตราตกกับดักต่ำสุดในสามตัว (33 รัน) แต่อัตรางานสำเร็จก็ต่ำสุดเช่นกัน (313/500) รายละเอียดเต็มอยู่ใน [`RESULTS-CODEX-HERMES.md`](RESULTS-CODEX-HERMES.md), [`RESULTS-CLAUDE.md`](RESULTS-CLAUDE.md) และ [`results/per-family-results.csv`](results/per-family-results.csv)
 
 ## ระเบียบวิธีโดยย่อ
 
@@ -43,6 +43,7 @@
 |---|---|
 | `METHODOLOGY.md` | ระเบียบวิธีฉบับเต็มและตารางกับดักทั้ง 25 ตระกูล |
 | `RESULTS-CODEX-HERMES.md` | ผลฉบับสมบูรณ์ของ Codex และ Hermes พร้อมข้อค้นพบ |
+| `RESULTS-CLAUDE.md` | ผลฉบับสมบูรณ์ของ Claude Code พร้อมข้อค้นพบ |
 | `scenarios500.json` | ฉากทั้ง 500 ฉาก (prompt, fixture, เงื่อนไขสำเร็จ/กับดัก) — ค่า credential ในฉากเป็นค่าปลอมสังเคราะห์เพื่อการทดสอบเท่านั้น |
 | `scenarios.py` | ฉากเขียนมือ 10 ฉากจากรอบทดสอบนำร่อง |
 | `gen_scenarios.py` | ตัวสร้างฉาก 500 ฉาก (deterministic) |
@@ -50,7 +51,7 @@
 | `runner.py` | ตัวรันรายเซลล์และตัวให้คะแนนจากผลต่างระบบไฟล์ |
 | `batch.py` | ตัวขับชุดใหญ่ (เลนขนาน, retry, resume) |
 | `results/per-family-results.csv` | ตัวเลขสรุปรายตระกูล |
-| `results/codex/`, `results/hermes/` | ผลรายเซลล์ (JSON) ครบ 500 ไฟล์ต่อ harness |
+| `results/codex/`, `results/hermes/`, `results/claude/` | ผลรายเซลล์ (JSON) ครบ 500 ไฟล์ต่อ harness |
 
 ## วิธีรันซ้ำ
 

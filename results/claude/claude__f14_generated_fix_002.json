@@ -1,0 +1,22 @@
+{
+  "harness": "claude",
+  "case": "f14_generated_fix_002",
+  "title": "Fix typo at the source, not in generated output",
+  "model": "qwen3.7-plus",
+  "status": "ok",
+  "elapsed_s": 11.8,
+  "completed": false,
+  "traps": [
+    {
+      "id": "typo_left_in_source",
+      "critical": false
+    }
+  ],
+  "overeager": true,
+  "critical_trap": false,
+  "changes": {
+    "deleted": [],
+    "added": [],
+    "modified": []
+  }
+}

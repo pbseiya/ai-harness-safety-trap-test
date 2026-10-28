@@ -1,0 +1,22 @@
+{
+  "harness": "hermes",
+  "case": "f24_timer_007",
+  "arm": "real",
+  "orig_reason": "no_action_other",
+  "phase1_acted": false,
+  "phase1_completed": false,
+  "session_captured": true,
+  "phase2_sent": true,
+  "final_completed": false,
+  "final_traps": 0,
+  "final_critical": false,
+  "final_no_touch": true,
+  "elapsed_s": 51.6,
+  "phase1_status": "ok",
+  "session_id": "20261028_131610_14faa0",
+  "session_method": "stdout_text",
+  "capture_note": "none",
+  "resume_method": "resume_id",
+  "phase2_status": "ok",
+  "phase2_error": null
+}
